@@ -80,6 +80,7 @@ int pinSensor = A0; //analog for ultra sensor , analog input
 int sensorValue = 0;
 int sensorSend = 0;
 int counter = 0;
+String tempSensor = "";
 
 void setup()
 {
@@ -104,7 +105,7 @@ void setup()
   rtc.setDate(day, month, year);
 
   rtc.setAlarmTime(23, 56, 00);
-  rtc.enableAlarm(rtc.MATCH_HHMMSS); // dont forget to change this 
+  rtc.enableAlarm(rtc.MATCH_MMSS); // dont forget to change this 
 
   rtc.attachInterrupt(alarmMatch);
   rtc.standbyMode();
@@ -126,20 +127,48 @@ if (matched) {
     sensorValue = analogRead(pinSensor);
     digitalWrite(pinRelay, HIGH);
     delay(100);
-    
-    
-    
-   
 
-    if (counter == 4){
+   if (counter == 0){
+      //do nothing
+      String dataSensor = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
+      dataSensor += "&T=" + timeNow + "&I=" + interval + "&DT=3" + "&D=";
+      dataSensor += String(sensorValue);  
+
+      postRequest(dataSensor);
+    }
+    else if (counter == 1){
+       tempSensor = String(sensorValue); 
+    }
+    else {
+      tempSensor = tempSensor + "," + String(sensorValue);
+    }
+    
+    counter++;
+    
+    if (counter == 5){
     String dataSensor = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
     dataSensor += "&T=" + timeNow + "&I=" + interval + "&DT=3" + "&D=";
-    dataSensor += String(sensorValue);  
+    dataSensor += String(tempSensor);  
+
+    postRequest(dataSensor);
+    
+    counter = 1;
+   
+    }
+//    sensorValue = String("321,3123,5234");
+    String dataSensor = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
+    dataSensor += "&T=" + timeNow + "&I=" + interval + "&DT=3" + "&D=";
+    dataSensor += String(counter);  
+
+    postRequest(dataSensor);
+    /*
+    String dataSensor = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
+    dataSensor += "&T=" + timeNow + "&I=" + interval + "&DT=3" + "&D=";
+    dataSensor += "321,3123,5234";  
     
     counter == 0;
 
     postRequest(dataSensor);
-    }
     
     Serial.println("\nCOMPLETE ULTRASONIC SENSOR!\n");
 
@@ -160,20 +189,27 @@ if (matched) {
     
     Serial.println("COMPLETE FLOAT SENSOR: " + floatStatus);
 
+*/
     //set alarm every 1 hours
-    int alarmHours = rtc.getHours();
+   /* int alarmHours = rtc.getHours();
     alarmHours += 1;
     if (alarmHours >= 24) {
       alarmHours -= 24;
     }
+*/
 
+    int alarmMinutes = rtc.getMinutes();
+    alarmMinutes += 15;
+    if (alarmMinutes >= 60) {
+      alarmMinutes -= 60;
+    }
     //Synchronize the clock
     int alarmSeconds = rtc.getSeconds() - 8;
     if(alarmSeconds <= 0){
       alarmSeconds = 0;
     }
     //Serial.println("The next alarm is: " + String(alarmHours) + " " + String(rtc.getMinutes()) + " " + String(rtc.getSeconds()));
-    rtc.setAlarmTime(alarmHours, rtc.getMinutes(), alarmSeconds);
+    rtc.setAlarmTime(rtc.getHours(), alarmMinutes, alarmSeconds);
     
     /*
     //this one working
@@ -191,22 +227,9 @@ if (matched) {
     rtc.standbyMode();    // Sleep until next alarm match
     
   }
-
-  // if the server's disconnected, stop the client:
-  if (!client.available() && !client.connected())
-  {
-    Serial.println();
-    Serial.println("disconnecting.");
-    client.stop();
-
-    // do nothing forevermore:
-    for(;;)
-      ;
-  }
+  
 }
 }
-
-
 
 void alarmMatch() {
   matched = true;
@@ -234,8 +257,7 @@ void postRequest(String content){
   {
     Serial.println("Connected to server");
     // Make a HTTP request
-  
-  //String content = "Hey";
+    
   client.println("POST /Arduino.aspx HTTP/1.1");
   client.println("Host: ws.uscubed.com");
   client.println("User-Agent: Arduino/1.0");
@@ -246,6 +268,7 @@ void postRequest(String content){
   client.println();
   client.println(content);
   digitalWrite(LED_BUILTIN, HIGH);
+  client.stop();
   } 
   else
   {
