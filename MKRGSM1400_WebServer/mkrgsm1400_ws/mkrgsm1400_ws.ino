@@ -140,7 +140,7 @@ if (matched) {
        tempSensor = String(sensorValue); 
     }
     else {
-      tempSensor = tempSensor + "," + String(sensorValue);
+      tempSensor += "," + String(sensorValue);
     }
     
     counter++;
@@ -156,36 +156,36 @@ if (matched) {
    
     }
 //    sensorValue = String("321,3123,5234");
+
+/*
     String dataSensor = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
     dataSensor += "&T=" + timeNow + "&I=" + interval + "&DT=3" + "&D=";
     dataSensor += String(counter);  
 
     postRequest(dataSensor);
-    /*
-    String dataSensor = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
-    dataSensor += "&T=" + timeNow + "&I=" + interval + "&DT=3" + "&D=";
-    dataSensor += "321,3123,5234";  
-    
-    counter == 0;
+*/
+   //Serial.println("\nCOMPLETE ULTRASONIC SENSOR!\n");
 
-    postRequest(dataSensor);
-    
-    Serial.println("\nCOMPLETE ULTRASONIC SENSOR!\n");
+    /*
+
+
 
     //float sensor
     String alarm = "";
     int floatStatus = digitalRead(pinFloat);
+    
     if (floatStatus == 0){
       alarm = "1"; //TRUE
+      
+    String dataFloat = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
+    dataFloat += "&T=" + timeNow + "&I=" + "&DT=7" + "D=";
+    dataFloat += String(floatStatus);
+    postRequest(dataFloat);
       
     } else{
       alarm = "0"; // FALSE
     }
 
-   // String dataFloat = "U=usMQt3d&P=arG8lu&ID=" + DeviceID;
-  //  dataFloat += "&T=" + timeNow + "&I=" + "&DT=7" + "D=";
-  //  dataFloat += String(floatStatus);
-   // postRequest(dataFloat);
     
     Serial.println("COMPLETE FLOAT SENSOR: " + floatStatus);
 
